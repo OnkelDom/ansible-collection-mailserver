@@ -1,0 +1,7 @@
+---
+- name: Restart opendkim
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ opendkim_service_name }}"
+    state: restarted
+  tags: opendkim

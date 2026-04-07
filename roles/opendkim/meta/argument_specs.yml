@@ -1,0 +1,44 @@
+---
+argument_specs:
+  main:
+    short_description: Entry point for the opendkim role.
+    description:
+    - Validate variables for the `opendkim` role.
+    options:
+      opendkim_manage_service:
+        description:
+        - Controls `opendkim_manage_service` for the `opendkim` role.
+        required: false
+        type: bool
+      opendkim_service_enabled:
+        description:
+        - Controls `opendkim_service_enabled` for the `opendkim` role.
+        required: false
+        type: bool
+      opendkim_service_state:
+        description:
+        - Controls `opendkim_service_state` for the `opendkim` role.
+        required: false
+        type: str
+      opendkim_manage_selinux:
+        description:
+        - Controls `opendkim_manage_selinux` for the `opendkim` role.
+        required: false
+        type: bool
+      opendkim_config:
+        description:
+        - Controls `opendkim_config` for the `opendkim` role.
+        required: false
+        type: dict
+      opendkim_domains:
+        description:
+        - Controls `opendkim_domains` for the `opendkim` role.
+        required: false
+        type: list
+        elements: dict
+      opendkim_trustedhosts:
+        description:
+        - Controls `opendkim_trustedhosts` for the `opendkim` role.
+        required: false
+        type: list
+        elements: str

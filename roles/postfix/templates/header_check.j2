@@ -1,0 +1,3 @@
+{{ ansible_managed | comment }}
+
+/From:.*/ REPLACE From: {{ postfix_hostname }}.{{ postfix_domain}} <noreply@{{ postfix_domain }}>

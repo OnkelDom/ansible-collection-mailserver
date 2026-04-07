@@ -1,0 +1,50 @@
+{{ ansible_managed | comment }}
+
+myhostname = {{ postfix_hostname }}
+mydomain = {{ postfix_domain }}
+myorigin = $mydomain
+
+inet_interfaces = {{ postfix_inet_interfaces }}
+inet_protocols = {{ postfix_inet_protocols }}
+
+mydestination = $myhostname, $myhostname.$mydomain, localhost
+mynetworks = {{ postfix_mynetworks | default(['127.0.0.0/8'], true) | join(', ') }}
+
+smtpd_banner = $myhostname ESMTP $mail_name
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+{% if postfix_use_sender_canonical %}
+sender_canonical_classes = envelope_sender, header_sender
+sender_canonical_maps = regexp:/etc/postfix/sender_canonical
+{% endif %}
+
+{% if postfix_use_header_check %}
+smtp_header_checks = regexp:/etc/postfix/header_check
+{% endif %}
+
+{% if postfix_relayhost %}
+relayhost = {{ postfix_relayhost }}
+{% endif %}
+
+# TLS
+{% if postfix_tls_use %}
+smtp_use_tls = yes
+smtp_tls_security_level = {{ postfix_tls_security_level }}
+smtp_tls_CAfile = {{ postfix_tls_cafile | default(postfix_tls_cafile_default, true) }}
+{% else %}
+smtp_use_tls = no
+{% endif %}
+
+# SASL Auth
+{% if postfix_sasl_user and postfix_sasl_password %}
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_sasl_tls_security_options = noanonymous
+{% endif %}
+
+# Weitere Einstellungen
+readme_directory = no
+compatibility_level = {{ postfix_compatibility_level }}

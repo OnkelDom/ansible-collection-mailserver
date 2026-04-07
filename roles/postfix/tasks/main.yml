@@ -1,0 +1,116 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+    - ansible_os_family in ["Debian", "RedHat"]
+    - >
+      (ansible_distribution == "Ubuntu" and
+      ansible_distribution_version is version("22.04", ">=")) or
+      (ansible_distribution == "Debian" and
+      ansible_distribution_major_version is version("12", ">=")) or
+      (ansible_os_family == "RedHat" and
+      ansible_distribution_major_version is version("9", ">="))
+    fail_msg: "The postfix role supports Ubuntu 22.04+, Debian 12+, and RHEL-compatible 9+ hosts only."
+
+- name: Load platform-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Remove other mtas
+  ansible.builtin.package:
+    name: "{{ postfix_conflicting_packages }}"
+    state: absent
+  become: true
+  tags: postfix-mta
+  when: postfix_conflicting_packages | length > 0
+
+- name: Install postfix
+  ansible.builtin.package:
+    name: "{{ postfix_packages }}"
+    state: present
+  become: true
+  tags: postfix-mta
+
+- name: Configure main.cf
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: "/usr/sbin/postfix check"
+  notify: Restart postfix
+  become: true
+  tags: postfix-mta
+
+- name: Configure header_check
+  ansible.builtin.template:
+    src: header_check.j2
+    dest: /etc/postfix/header_check
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart postfix
+  become: true
+  tags: postfix-mta
+
+- name: Configure sender_canonical
+  ansible.builtin.template:
+    src: sender_canonical.j2
+    dest: /etc/postfix/sender_canonical
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart postfix
+  become: true
+  tags: postfix-mta
+
+- name: Configure aliases
+  ansible.builtin.template:
+    src: aliases.j2
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Update aliases
+  become: true
+  tags: postfix-mta
+
+- name: Configure mail.rc
+  ansible.builtin.template:
+    src: mail.rc.j2
+    dest: "{{ postfix_mailrc_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart postfix
+  become: true
+  tags: postfix-mta
+  when: postfix_manage_mailrc
+
+- name: Configure sasl_passwd
+  ansible.builtin.template:
+    src: sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    mode: '0600'
+    owner: root
+    group: root
+  notify: Rebuild SASL map
+  become: true
+  when:
+  - postfix_relayhost | length > 0
+  - postfix_sasl_user | length > 0
+  - postfix_sasl_password | length > 0
+  tags: postfix-mta
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+  tags: postfix-mta
+
+- name: Enable and start service
+  ansible.builtin.service:
+    name: "{{ postfix_service_name }}"
+    state: "{{ postfix_service_state }}"
+    enabled: "{{ postfix_service_enabled }}"
+  become: true
+  tags: postfix-mta
+  when: postfix_manage_service

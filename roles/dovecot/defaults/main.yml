@@ -1,0 +1,4 @@
+---
+dovecot_manage_service: true
+dovecot_service_enabled: true
+dovecot_service_state: started

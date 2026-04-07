@@ -1,0 +1,8 @@
+---
+opendkim_packages:
+- opendkim
+- opendkim-tools
+opendkim_manage_epel: false
+opendkim_manage_selinux_platform: false
+opendkim_service_name: opendkim
+opendkim_socket_directory: /run/opendkim

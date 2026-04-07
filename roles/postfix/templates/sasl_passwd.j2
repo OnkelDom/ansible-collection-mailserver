@@ -1,0 +1,6 @@
+
+{{ ansible_managed | comment }}
+
+{% if postfix_sasl_relayhost and postfix_sasl_user and postfix_sasl_password %}
+{{ postfix_sasl_relayhost }} {{ postfix_sasl_user }}:{{ postfix_sasl_password }}
+{% endif %}

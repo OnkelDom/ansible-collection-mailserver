@@ -1,0 +1,214 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+    - ansible_os_family in ["Debian", "RedHat"]
+    - >
+      (ansible_distribution == "Ubuntu" and
+      ansible_distribution_version is version("22.04", ">=")) or
+      (ansible_distribution == "Debian" and
+      ansible_distribution_major_version is version("12", ">=")) or
+      (ansible_os_family == "RedHat" and
+      ansible_distribution_major_version is version("9", ">="))
+    fail_msg: "The opendkim role supports Ubuntu 22.04+, Debian 12+, and RHEL-compatible 9+ hosts only."
+
+- name: Load platform-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install epel-release
+  become: true
+  ansible.builtin.package:
+    name: epel-release
+    state: present
+  tags: opendkim
+  when: opendkim_manage_epel
+
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ opendkim_packages }}"
+    state: present
+  tags: opendkim
+
+- name: Create directories for OpenDKIM
+  become: true
+  ansible.builtin.file:
+    path: /etc/opendkim/keys
+    state: directory
+    owner: opendkim
+    group: opendkim
+    mode: '0700'
+  tags: opendkim
+
+# DKIM key generation and DNS TXT record output
+- name: Create domain-specific key directories
+  become: true
+  ansible.builtin.file:
+    path: /etc/opendkim/keys/{{ item.selector }}
+    state: directory
+    owner: opendkim
+    group: opendkim
+    mode: '0700'
+  loop: "{{ opendkim_domains }}"
+  tags: opendkim
+
+- name: Check if DKIM keys already exist
+  become: true
+  ansible.builtin.stat:
+    path: /etc/opendkim/keys/{{ item.selector }}/{{ item.selector }}.private
+  register: opendkim_key_check
+  loop: "{{ opendkim_domains }}"
+  tags: opendkim
+
+- name: Generate DKIM keys if not present
+  become: true
+  ansible.builtin.command:
+    cmd: >
+      opendkim-genkey -D /etc/opendkim/keys/{{ item.item.selector }} -d {{ item.item.domain }} -s {{ item.item.selector }}
+  when: not item.stat.exists
+  loop: "{{ opendkim_key_check.results }}"
+  changed_when: true
+  notify: Restart opendkim
+  tags: opendkim
+
+- name: Show warning for existing DKIM keys
+  ansible.builtin.debug:
+    msg: |
+      DKIM key for domain '{{ item.item.domain }}' with selector '{{ item.item.selector }}' already exists.
+      No new key was generated and the DNS record stays unchanged.
+  when: item.stat.exists
+  loop: "{{ opendkim_key_check.results }}"
+  tags: opendkim
+
+- name: Set permissions for DKIM keys
+  become: true
+  ansible.builtin.file:
+    path: /etc/opendkim/keys/{{ item.selector }}
+    owner: opendkim
+    group: opendkim
+    mode: '0700'
+    recurse: true
+  loop: "{{ opendkim_domains }}"
+  tags: opendkim
+
+- name: Deploy opendkim.conf
+  become: true
+  ansible.builtin.template:
+    src: opendkim.conf.j2
+    dest: /etc/opendkim.conf
+    mode: '0644'
+    owner: opendkim
+    group: opendkim
+  notify: Restart opendkim
+  tags: opendkim
+
+- name: Deploy KeyTable
+  become: true
+  ansible.builtin.template:
+    src: KeyTable.j2
+    dest: /etc/opendkim/KeyTable
+    mode: '0640'
+    owner: opendkim
+    group: opendkim
+  notify: Restart opendkim
+  tags: opendkim
+
+- name: Deploy SigningTable
+  become: true
+  ansible.builtin.template:
+    src: SigningTable.j2
+    dest: /etc/opendkim/SigningTable
+    mode: '0640'
+    owner: opendkim
+    group: opendkim
+  notify: Restart opendkim
+  tags: opendkim
+
+- name: Deploy TrustedHosts
+  become: true
+  ansible.builtin.template:
+    src: TrustedHosts.j2
+    dest: /etc/opendkim/TrustedHosts
+    mode: '0644'
+    owner: opendkim
+    group: opendkim
+  notify: Restart opendkim
+  tags: opendkim
+
+- name: Ensure OpenDKIM socket directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ opendkim_socket_directory }}"
+    state: directory
+    owner: opendkim
+    group: opendkim
+    mode: '0755'
+  tags: opendkim
+
+- name: Ensure OpenDKIM socket SELinux context
+  become: true
+  ansible.builtin.command:
+    cmd: semanage fcontext -a -t postfix_milter_socket_t "{{ opendkim_socket_directory }}(/.*)?"
+  changed_when: false
+  failed_when: false
+  tags: opendkim
+  when:
+  - opendkim_manage_selinux
+  - opendkim_manage_selinux_platform
+
+- name: Apply SELinux context to OpenDKIM directory
+  become: true
+  ansible.builtin.command:
+    cmd: restorecon -R "{{ opendkim_socket_directory }}"
+  changed_when: false
+  failed_when: false
+  tags: opendkim
+  when:
+  - opendkim_manage_selinux
+  - opendkim_manage_selinux_platform
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+  tags: opendkim
+
+- name: Enable and start service opendkim
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ opendkim_service_name }}"
+    enabled: "{{ opendkim_service_enabled }}"
+    state: "{{ opendkim_service_state }}"
+  tags: opendkim
+  when: opendkim_manage_service
+
+- name: Read DKIM public key for DNS TXT record
+  become: true
+  ansible.builtin.slurp:
+    src: /etc/opendkim/keys/{{ item.selector }}/{{ item.selector }}.txt
+  register: opendkim_txt_records
+  loop: "{{ opendkim_domains }}"
+  failed_when: false
+  tags: opendkim
+
+- name: Show DKIM DNS TXT records
+  ansible.builtin.debug:
+    msg: |
+      Domain: {{ item.item.domain }}
+      Selector: {{ item.item.selector }}
+      DNS TXT Record:
+      {{ item.content | b64decode }}
+      ---
+  loop: "{{ opendkim_txt_records.results }}"
+  when: item.content is defined
+  tags: opendkim
+
+- name: List all existing DKIM key files
+  ansible.builtin.debug:
+    msg: |
+      Existing DKIM key files:
+      {% for domain in opendkim_domains %}
+      Domain: {{ domain.domain }} | Selector: {{ domain.selector }}
+      Private Key: /etc/opendkim/keys/{{ domain.selector }}/{{ domain.selector }}.private
+      Public Key:  /etc/opendkim/keys/{{ domain.selector }}/{{ domain.selector }}.txt
+      {% endfor %}
+  run_once: true
+  tags: opendkim

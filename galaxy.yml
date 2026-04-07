@@ -1,0 +1,26 @@
+---
+namespace: lenmail
+name: mailserver
+version: 0.1.0
+readme: README.md
+authors:
+- Dominik Lenhardt <dominik.lenhardt@lenmail.de>
+description: "Collection with mailserver roles for Postfix, OpenDKIM, and Dovecot."
+license:
+- MIT
+tags:
+- infrastructure
+- linux
+- mail
+- postfix
+- dovecot
+dependencies:
+  community.general: ">=3.0.0"
+  ansible.posix: ">=1.4.0"
+repository: https://github.com/lenmail/ansible-collection-mailserver
+documentation: https://github.com/lenmail/ansible-collection-mailserver
+homepage: https://lenhardt.cc
+issues: https://github.com/lenmail/ansible-collection-mailserver/issues
+build_ignore:
+- .github/
+- tests/

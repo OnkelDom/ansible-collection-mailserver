@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+# OpenDKIM keytable file
+
+{% for domain_config in opendkim_domains %}
+{{ domain_config.selector }}._domainkey.{{ domain_config.domain }} {{ domain_config.domain }}:{{ domain_config.selector }}:/etc/opendkim/keys/{{ domain_config.selector }}/{{ domain_config.selector }}.private
+{% endfor %}

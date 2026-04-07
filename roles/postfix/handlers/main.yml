@@ -1,0 +1,21 @@
+---
+- name: Restart postfix
+  ansible.builtin.service:
+    name: "{{ postfix_service_name }}"
+    state: restarted
+  become: true
+  tags: postfix-mta
+
+- name: Update aliases
+  ansible.builtin.command:
+    cmd: newaliases
+  become: true
+  changed_when: true
+  tags: postfix-mta
+
+- name: Rebuild SASL map
+  ansible.builtin.command:
+    cmd: postmap /etc/postfix/sasl_passwd
+  become: true
+  changed_when: true
+  tags: postfix-mta

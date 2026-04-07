@@ -1,0 +1,22 @@
+---
+argument_specs:
+  main:
+    short_description: Entry point for the dovecot role.
+    description:
+    - Validate variables for the `dovecot` role.
+    options:
+      dovecot_manage_service:
+        description:
+        - Controls `dovecot_manage_service` for the `dovecot` role.
+        required: false
+        type: bool
+      dovecot_service_enabled:
+        description:
+        - Controls `dovecot_service_enabled` for the `dovecot` role.
+        required: false
+        type: bool
+      dovecot_service_state:
+        description:
+        - Controls `dovecot_service_state` for the `dovecot` role.
+        required: false
+        type: str

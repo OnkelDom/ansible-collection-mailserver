@@ -1,0 +1,8 @@
+{{ ansible_managed | comment }}
+
+root: {{ postfix_root_mail }}
+{% if postfix_aliases is defined %}
+{% for key, value in postfix_aliases.items() %}
+{{ key }}: {{ value }}
+{% endfor %}
+{% endif %}

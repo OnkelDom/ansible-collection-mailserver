@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+# OpenDKIM configuration file
+
+{% for key, value in opendkim_config.items() %}
+{{ key }} {{ value }}
+{% endfor %}

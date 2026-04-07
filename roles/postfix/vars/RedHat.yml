@@ -1,0 +1,11 @@
+---
+postfix_packages:
+- postfix
+- cyrus-sasl-plain
+- ca-certificates
+postfix_conflicting_packages:
+- sendmail
+postfix_service_name: postfix
+postfix_manage_mailrc: false
+postfix_mailrc_path: /etc/mail.rc
+postfix_tls_cafile_default: /etc/pki/tls/certs/ca-bundle.crt

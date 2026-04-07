@@ -1,0 +1,113 @@
+---
+argument_specs:
+  main:
+    short_description: Entry point for the postfix role.
+    description:
+    - Validate variables for the `postfix` role.
+    options:
+      postfix_hostname:
+        description:
+        - Controls `postfix_hostname` for the `postfix` role.
+        required: false
+        type: str
+      postfix_domain:
+        description:
+        - Controls `postfix_domain` for the `postfix` role.
+        required: false
+        type: str
+      postfix_relayhost:
+        description:
+        - Controls `postfix_relayhost` for the `postfix` role.
+        required: false
+        type: str
+      postfix_root_mail:
+        description:
+        - Controls `postfix_root_mail` for the `postfix` role.
+        required: false
+        type: str
+      postfix_manage_service:
+        description:
+        - Controls `postfix_manage_service` for the `postfix` role.
+        required: false
+        type: bool
+      postfix_service_enabled:
+        description:
+        - Controls `postfix_service_enabled` for the `postfix` role.
+        required: false
+        type: bool
+      postfix_service_state:
+        description:
+        - Controls `postfix_service_state` for the `postfix` role.
+        required: false
+        type: str
+      postfix_manage_mailrc:
+        description:
+        - Controls `postfix_manage_mailrc` for the `postfix` role.
+        required: false
+        type: bool
+      postfix_mynetworks:
+        description:
+        - Controls `postfix_mynetworks` for the `postfix` role.
+        required: false
+        type: list
+        elements: str
+      postfix_aliases:
+        description:
+        - Controls `postfix_aliases` for the `postfix` role.
+        required: false
+        type: dict
+      postfix_sasl_user:
+        description:
+        - Controls `postfix_sasl_user` for the `postfix` role.
+        required: false
+        type: str
+      postfix_sasl_password:
+        description:
+        - Controls `postfix_sasl_password` for the `postfix` role.
+        required: false
+        type: str
+      postfix_sasl_relayhost:
+        description:
+        - Controls `postfix_sasl_relayhost` for the `postfix` role.
+        required: false
+        type: str
+      postfix_inet_interfaces:
+        description:
+        - Controls `postfix_inet_interfaces` for the `postfix` role.
+        required: false
+        type: str
+      postfix_inet_protocols:
+        description:
+        - Controls `postfix_inet_protocols` for the `postfix` role.
+        required: false
+        type: str
+      postfix_tls_use:
+        description:
+        - Controls `postfix_tls_use` for the `postfix` role.
+        required: false
+        type: bool
+      postfix_tls_security_level:
+        description:
+        - Controls `postfix_tls_security_level` for the `postfix` role.
+        required: false
+        type: str
+      postfix_tls_cafile:
+        description:
+        - Controls `postfix_tls_cafile` for the `postfix` role.
+        required: false
+        type: str
+      postfix_compatibility_level:
+        description:
+        - Controls `postfix_compatibility_level` for the `postfix` role.
+        required: false
+        type: str
+      postfix_use_sender_canonical:
+        description:
+        - Controls `postfix_use_sender_canonical` for the `postfix` role.
+        required: false
+        type: bool
+      postfix_use_header_check:
+        description:
+        - Controls `postfix_use_header_check` for the `postfix` role.
+        required: false
+        type: bool

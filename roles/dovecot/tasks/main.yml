@@ -1,0 +1,30 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+    - ansible_os_family in ["Debian", "RedHat"]
+    - >
+      (ansible_distribution == "Ubuntu" and
+      ansible_distribution_version is version("22.04", ">=")) or
+      (ansible_distribution == "Debian" and
+      ansible_distribution_major_version is version("12", ">=")) or
+      (ansible_os_family == "RedHat" and
+      ansible_distribution_major_version is version("9", ">="))
+    fail_msg: "The dovecot role supports Ubuntu 22.04+, Debian 12+, and RHEL-compatible 9+ hosts only."
+
+- name: Load platform-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install dovecot packages
+  ansible.builtin.package:
+    name: "{{ dovecot_packages }}"
+    state: present
+  become: true
+
+- name: Ensure dovecot service state
+  ansible.builtin.service:
+    name: "{{ dovecot_service_name }}"
+    enabled: "{{ dovecot_service_enabled }}"
+    state: "{{ dovecot_service_state }}"
+  become: true
+  when: dovecot_manage_service

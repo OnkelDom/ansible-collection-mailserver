@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+# OpenDKIM trustedhosts file
+
+{% for host in opendkim_trustedhosts %}
+{{ host }}
+{% endfor %}

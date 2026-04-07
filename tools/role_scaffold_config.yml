@@ -1,0 +1,22 @@
+---
+collection_namespace: lenmail
+collection_name: mailserver
+min_ansible_version: "2.16"
+common_platforms:
+- name: Ubuntu
+  display: Ubuntu 22.04+
+  versions:
+  - jammy
+  - noble
+- name: Debian
+  display: Debian 12+
+  versions:
+  - bookworm
+- name: EL
+  display: RHEL 9+
+  versions:
+  - "9"
+role_descriptions:
+  dovecot: Install and configure a basic Dovecot IMAP/POP3 service.
+  opendkim: Install and configure OpenDKIM for outbound mail signing.
+  postfix: Install and configure Postfix as a local MTA or relay host.

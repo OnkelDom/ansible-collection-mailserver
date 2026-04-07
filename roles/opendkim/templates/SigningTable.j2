@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+# OpenDKIM signingtable file
+
+{% for domain_config in opendkim_domains %}
+*@{{ domain_config.domain }} {{ domain_config.selector }}._domainkey.{{ domain_config.domain }}
+{% endfor %}

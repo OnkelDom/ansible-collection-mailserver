@@ -1,0 +1,15 @@
+---
+postfix_packages:
+- postfix
+- mailutils
+- libsasl2-modules
+- ca-certificates
+postfix_conflicting_packages:
+- exim4
+- sendmail
+- ssmtp
+- msmtp
+postfix_service_name: postfix
+postfix_manage_mailrc: true
+postfix_mailrc_path: /etc/mail.rc
+postfix_tls_cafile_default: /etc/ssl/certs/ca-certificates.crt
