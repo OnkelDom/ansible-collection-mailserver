@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+# OpenDMARC configuration file
+
+{% for key, value in dmarc_config.items() %}
+{{ key }} {{ value }}
+{% endfor %}

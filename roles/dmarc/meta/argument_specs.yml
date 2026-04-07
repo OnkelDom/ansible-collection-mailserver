@@ -1,0 +1,43 @@
+---
+argument_specs:
+  main:
+    short_description: Entry point for the dmarc role.
+    description:
+    - Validate variables for the `dmarc` role.
+    options:
+      dmarc_manage_service:
+        description:
+        - Controls `dmarc_manage_service` for the `dmarc` role.
+        required: false
+        type: bool
+      dmarc_service_enabled:
+        description:
+        - Controls `dmarc_service_enabled` for the `dmarc` role.
+        required: false
+        type: bool
+      dmarc_service_state:
+        description:
+        - Controls `dmarc_service_state` for the `dmarc` role.
+        required: false
+        type: str
+      dmarc_manage_selinux:
+        description:
+        - Controls `dmarc_manage_selinux` for the `dmarc` role.
+        required: false
+        type: bool
+      dmarc_authserv_id:
+        description:
+        - Controls `dmarc_authserv_id` for the `dmarc` role.
+        required: false
+        type: str
+      dmarc_ignore_hosts:
+        description:
+        - Controls `dmarc_ignore_hosts` for the `dmarc` role.
+        required: false
+        type: list
+        elements: str
+      dmarc_config:
+        description:
+        - Controls `dmarc_config` for the `dmarc` role.
+        required: false
+        type: dict

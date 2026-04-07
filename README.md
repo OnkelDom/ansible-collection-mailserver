@@ -21,6 +21,7 @@ Nicht jede Rolle ist auf jeder Plattform sinnvoll. Effektiv unterstuetzte Plattf
 
 ## Rollen
 
+- `dmarc`: installiert und konfiguriert OpenDMARC fuer DMARC-Pruefungen
 - `dovecot`: installiert den Dovecot-IMAP/POP3-Dienst mit sicherem Minimal-Setup
 - `opendkim`: installiert und konfiguriert OpenDKIM fuer ausgehende Signaturen
 - `postfix`: installiert und konfiguriert Postfix als MTA bzw. Relay

@@ -1,0 +1,4 @@
+{{ ansible_managed | comment }}
+{% for host in dmarc_ignore_hosts %}
+{{ host }}
+{% endfor %}

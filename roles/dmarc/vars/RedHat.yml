@@ -1,0 +1,10 @@
+---
+dmarc_packages:
+- opendmarc
+- policycoreutils-python-utils
+dmarc_manage_epel: true
+dmarc_manage_selinux_platform: true
+dmarc_service_name: opendmarc
+dmarc_runtime_directory: /var/run/opendmarc
+dmarc_runtime_owner: opendmarc
+dmarc_runtime_group: opendmarc

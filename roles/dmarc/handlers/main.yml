@@ -1,0 +1,7 @@
+---
+- name: Restart dmarc
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ dmarc_service_name }}"
+    state: restarted
+  tags: dmarc

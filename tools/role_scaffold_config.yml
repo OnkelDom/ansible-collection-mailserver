@@ -17,6 +17,7 @@ common_platforms:
   versions:
   - "9"
 role_descriptions:
+  dmarc: Install and configure OpenDMARC for DMARC policy checks.
   dovecot: Install and configure a basic Dovecot IMAP/POP3 service.
   opendkim: Install and configure OpenDKIM for outbound mail signing.
   postfix: Install and configure Postfix as a local MTA or relay host.

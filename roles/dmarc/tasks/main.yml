@@ -1,0 +1,98 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+    - ansible_os_family in ["Debian", "RedHat"]
+    - >
+      (ansible_distribution == "Ubuntu" and
+      ansible_distribution_version is version("22.04", ">=")) or
+      (ansible_distribution == "Debian" and
+      ansible_distribution_major_version is version("12", ">=")) or
+      (ansible_os_family == "RedHat" and
+      ansible_distribution_major_version is version("9", ">="))
+    fail_msg: "The dmarc role supports Ubuntu 22.04+, Debian 12+, and RHEL-compatible 9+ hosts only."
+
+- name: Load platform-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install epel-release
+  become: true
+  ansible.builtin.package:
+    name: epel-release
+    state: present
+  tags: dmarc
+  when: dmarc_manage_epel
+
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ dmarc_packages }}"
+    state: present
+  tags: dmarc
+
+- name: Ensure OpenDMARC runtime directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ dmarc_runtime_directory }}"
+    state: directory
+    owner: "{{ dmarc_runtime_owner }}"
+    group: "{{ dmarc_runtime_group }}"
+    mode: '0750'
+  tags: dmarc
+
+- name: Deploy ignore.hosts
+  become: true
+  ansible.builtin.template:
+    src: ignore.hosts.j2
+    dest: /etc/opendmarc/ignore.hosts
+    owner: root
+    group: "{{ dmarc_runtime_group }}"
+    mode: '0640'
+  notify: Restart dmarc
+  tags: dmarc
+
+- name: Deploy opendmarc.conf
+  become: true
+  ansible.builtin.template:
+    src: opendmarc.conf.j2
+    dest: /etc/opendmarc.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart dmarc
+  tags: dmarc
+
+- name: Ensure OpenDMARC socket SELinux context
+  become: true
+  ansible.builtin.command:
+    cmd: semanage fcontext -a -t postfix_milter_socket_t "{{ dmarc_runtime_directory }}(/.*)?"
+  changed_when: false
+  failed_when: false
+  tags: dmarc
+  when:
+  - dmarc_manage_selinux
+  - dmarc_manage_selinux_platform
+
+- name: Apply SELinux context to OpenDMARC runtime directory
+  become: true
+  ansible.builtin.command:
+    cmd: restorecon -R "{{ dmarc_runtime_directory }}"
+  changed_when: false
+  failed_when: false
+  tags: dmarc
+  when:
+  - dmarc_manage_selinux
+  - dmarc_manage_selinux_platform
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+  tags: dmarc
+
+- name: Ensure OpenDMARC service state
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ dmarc_service_name }}"
+    enabled: "{{ dmarc_service_enabled }}"
+    state: "{{ dmarc_service_state }}"
+  tags: dmarc
+  when: dmarc_manage_service

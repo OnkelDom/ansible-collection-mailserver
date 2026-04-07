@@ -1,0 +1,9 @@
+---
+dmarc_packages:
+- opendmarc
+dmarc_manage_epel: false
+dmarc_manage_selinux_platform: false
+dmarc_service_name: opendmarc
+dmarc_runtime_directory: /run/opendmarc
+dmarc_runtime_owner: opendmarc
+dmarc_runtime_group: opendmarc
