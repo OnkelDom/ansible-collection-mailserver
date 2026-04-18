@@ -1,10 +1,10 @@
 ---
-namespace: lenmail
+namespace: onkeldom
 name: mailserver
 version: 0.1.0
 readme: README.md
 authors:
-- Dominik Lenhardt <dominik.lenhardt@lenmail.de>
+- Dominik Lenhardt <dominik@lenmail.de>
 description: "Collection with mailserver roles for Postfix, OpenDKIM, and Dovecot."
 license:
 - MIT
