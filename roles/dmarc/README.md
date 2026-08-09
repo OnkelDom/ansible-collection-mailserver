@@ -42,7 +42,7 @@ dmarc_config:
   hosts: all
   become: true
   roles:
-    - role: lenmail.mailserver.dmarc
+    - role: onkeldom.mailserver.dmarc
 ```
 
 ## Testing

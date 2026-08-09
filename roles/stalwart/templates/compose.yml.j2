@@ -1,0 +1,33 @@
+---
+services:
+  stalwart:
+    image: {{ stalwart_image | quote }}
+    container_name: {{ stalwart_service_name | quote }}
+    restart: {{ stalwart_restart_policy | quote }}
+    environment:
+      STALWART_PUBLIC_URL: {{ stalwart_public_url | quote }}
+{% if stalwart_recovery_mode %}
+      STALWART_RECOVERY_MODE: "true"
+      STALWART_RECOVERY_MODE_PORT: {{ stalwart_recovery_port | string | quote }}
+      STALWART_RECOVERY_ADMIN: {{ (stalwart_recovery_admin_user ~ ':' ~ (stalwart_recovery_admin_password | trim)) | quote }}
+{% endif %}
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "143:143"
+      - "993:993"
+      - "110:110"
+      - "995:995"
+      - "4190:4190"
+      - "8080:8080"
+    volumes:
+      - {{ stalwart_config_path | quote }}:/etc/stalwart
+      - {{ stalwart_data_path | quote }}:/var/lib/stalwart
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

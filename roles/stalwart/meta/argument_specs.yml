@@ -1,0 +1,83 @@
+---
+argument_specs:
+  main:
+    short_description: Entry point for the stalwart role.
+    description:
+    - Validate variables for the `stalwart` role.
+    options:
+      stalwart_image:
+        description:
+        - Controls `stalwart_image` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_service_name:
+        description:
+        - Controls `stalwart_service_name` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_base_path:
+        description:
+        - Controls `stalwart_base_path` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_config_path:
+        description:
+        - Controls `stalwart_config_path` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_data_path:
+        description:
+        - Controls `stalwart_data_path` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_public_url:
+        description:
+        - Controls `stalwart_public_url` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_recovery_admin_user:
+        description:
+        - Controls `stalwart_recovery_admin_user` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_recovery_admin_password:
+        description:
+        - Controls `stalwart_recovery_admin_password` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_recovery_mode:
+        description:
+        - Controls `stalwart_recovery_mode` for the `stalwart` role.
+        required: false
+        type: bool
+      stalwart_recovery_port:
+        description:
+        - Controls `stalwart_recovery_port` for the `stalwart` role.
+        required: false
+        type: int
+      stalwart_restart_policy:
+        description:
+        - Controls `stalwart_restart_policy` for the `stalwart` role.
+        required: false
+        type: str
+      stalwart_manage_firewall:
+        description:
+        - Controls `stalwart_manage_firewall` for the `stalwart` role.
+        required: false
+        type: bool
+      stalwart_firewall_tcp_ports:
+        description:
+        - Controls `stalwart_firewall_tcp_ports` for the `stalwart` role.
+        required: false
+        type: list
+        elements: int
+      stalwart_service_enabled:
+        description:
+        - Controls `stalwart_service_enabled` for the `stalwart` role.
+        required: false
+        type: bool
+      stalwart_service_state:
+        description:
+        - Controls `stalwart_service_state` for the `stalwart` role.
+        required: false
+        type: str

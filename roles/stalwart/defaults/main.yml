@@ -1,0 +1,25 @@
+---
+stalwart_image: "stalwartlabs/stalwart:v0.16.15"
+stalwart_service_name: stalwart
+stalwart_base_path: /data/stalwart
+stalwart_config_path: "{{ stalwart_base_path }}/config"
+stalwart_data_path: "{{ stalwart_base_path }}/data"
+stalwart_public_url: ""
+stalwart_recovery_admin_user: admin
+stalwart_recovery_admin_password: ""
+stalwart_recovery_mode: false
+stalwart_recovery_port: 8080
+stalwart_restart_policy: unless-stopped
+stalwart_manage_firewall: false
+stalwart_firewall_tcp_ports:
+- 25
+- 465
+- 587
+- 143
+- 993
+- 110
+- 995
+- 4190
+- 8080
+stalwart_service_enabled: true
+stalwart_service_state: started

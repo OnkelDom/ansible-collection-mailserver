@@ -51,7 +51,7 @@ opendkim_trustedhosts:
   hosts: all
   become: true
   roles:
-    - role: lenmail.mailserver.opendkim
+    - role: onkeldom.mailserver.opendkim
 ```
 
 ## Testing
