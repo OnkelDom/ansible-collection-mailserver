@@ -46,7 +46,7 @@ postfix_use_header_check: true
   hosts: all
   become: true
   roles:
-    - role: lenmail.mailserver.postfix
+    - role: onkeldom.mailserver.postfix
 ```
 
 ## Testing

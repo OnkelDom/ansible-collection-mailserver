@@ -1,0 +1,103 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+    - ansible_os_family == "Debian"
+    - >
+      (ansible_distribution == "Ubuntu" and
+      ansible_distribution_version is version("22.04", ">=")) or
+      (ansible_distribution == "Debian" and
+      ansible_distribution_major_version is version("12", ">="))
+    - stalwart_public_url | length > 0
+    - not stalwart_recovery_mode or stalwart_recovery_admin_password | length >= 20
+    fail_msg: >-
+      The stalwart role supports Ubuntu 22.04+ and Debian 12+ only. A public URL is required and
+      recovery mode requires a password with at least 20 characters.
+
+- name: Install container runtime packages
+  ansible.builtin.apt:
+    name:
+    - docker.io
+    - docker-cli
+    - docker-compose
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure Docker service state
+  ansible.builtin.service:
+    name: docker
+    enabled: "{{ stalwart_service_enabled }}"
+    state: started
+
+- name: Ensure Stalwart persistent directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "2000"
+    group: "2000"
+    mode: "0750"
+  loop:
+  - "{{ stalwart_base_path }}"
+  - "{{ stalwart_config_path }}"
+  - "{{ stalwart_data_path }}"
+
+- name: Render Stalwart Compose definition
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ stalwart_base_path }}/compose.yml"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  notify: Restart Stalwart
+
+- name: Validate Stalwart Compose definition
+  ansible.builtin.command:
+    cmd: docker compose -f compose.yml config --quiet
+    chdir: "{{ stalwart_base_path }}"
+  changed_when: false
+
+- name: Ensure Stalwart service is deployed
+  ansible.builtin.command:
+    cmd: >-
+      docker compose -f compose.yml up -d
+      {{ '--pull missing' if stalwart_service_state == 'started' else '' }}
+    chdir: "{{ stalwart_base_path }}"
+  register: stalwart_compose_up
+  changed_when: >-
+    'Created' in stalwart_compose_up.stderr or
+    'Recreated' in stalwart_compose_up.stderr or
+    'Started' in stalwart_compose_up.stderr or
+    'Pulled' in stalwart_compose_up.stderr
+  when: stalwart_service_state == "started"
+
+- name: Ensure Stalwart service is stopped
+  ansible.builtin.command:
+    cmd: docker compose -f compose.yml stop
+    chdir: "{{ stalwart_base_path }}"
+  changed_when: false
+  when: stalwart_service_state == "stopped"
+
+- name: Manage UFW rules for Stalwart
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ stalwart_firewall_tcp_ports }}"
+  when: stalwart_manage_firewall
+
+- name: Wait for Stalwart management endpoint
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ stalwart_recovery_port }}/admin"
+    status_code:
+    - 200
+    - 302
+    validate_certs: false
+  register: stalwart_health
+  retries: 30
+  delay: 2
+  until: stalwart_health.status in [200, 302]
+  when:
+  - stalwart_service_state == "started"
+  - stalwart_recovery_mode

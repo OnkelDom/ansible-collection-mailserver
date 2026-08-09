@@ -26,7 +26,7 @@ dovecot_service_state: started
   hosts: all
   become: true
   roles:
-    - role: lenmail.mailserver.dovecot
+    - role: onkeldom.mailserver.dovecot
 ```
 
 ## Testing
